@@ -2,6 +2,8 @@
 
 // Events
 // -----------------
+// fork from:
+//  - https://github.com/aralejs/events/blob/master/events.js
 // Thanks to:
 //  - https://github.com/documentcloud/backbone/blob/master/backbone.js
 //  - https://github.com/joyent/node/blob/master/lib/events.js
