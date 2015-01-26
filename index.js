@@ -31,6 +31,32 @@ if (!keys) {
   };
 }
 
+if (!Array.prototype.forEach) {
+  Array.prototype.forEach = function(callback, thisArg) {
+    var T, k;
+    if (this === null) {
+      throw new TypeError('this is null or not defined');
+    }
+    var O = Object(this);
+    var len = O.length >>> 0; // Hack to convert O.length to a UInt32
+    if ({}.toString.call(callback) !== '[object Function]') {
+      throw new TypeError(callback + ' is not a function');
+    }
+    if (thisArg) {
+      T = thisArg;
+    }
+    k = 0;
+    while (k < len) {
+      var kValue;
+      if (k in O) {
+        kValue = O[k];
+        callback.call(T, kValue, k, O);
+      }
+      k++;
+    }
+  };
+}
+
 function isFunction(func) {
   return Object.prototype.toString.call(func) === '[object Function]';
 }
@@ -40,7 +66,11 @@ function triggerEvents(list, args, context) {
   var pass = true;
 
   if (list) {
-    var i = 0, l = list.length, a1 = args[0], a2 = args[1], a3 = args[2];
+    var i = 0,
+      l = list.length,
+      a1 = args[0],
+      a2 = args[1],
+      a3 = args[2];
     // call is faster than apply, optimize less than 3 argu
     // http://blog.csdn.net/zhengyinhui100/article/details/7837127
     switch (args.length) {
@@ -84,8 +114,7 @@ function triggerEvents(list, args, context) {
 //     object.on('expand', function(){ alert('expanded'); });
 //     object.trigger('expand');
 //
-function Events() {
-}
+function Events() {}
 
 // Bind one or more space separated events, `events`, to a `callback`
 // function. Passing `"all"` will bind the callback to all events fired.
@@ -165,7 +194,8 @@ Events.prototype.off = function(events, callback, context) {
 // (unless you're listening on `"all"`, which will cause your callback to
 // receive the true name of the event as the first argument).
 Events.prototype.trigger = function(events) {
-  var cache, event, all, list, i, len, rest = [], returned = true;
+  var cache, event, all, list, i, len, rest = [],
+    returned = true;
 
   if (!(cache = this.__events)) {
     return this;
@@ -207,7 +237,8 @@ Events.prototype.emit = Events.prototype.fire = Events.prototype.trigger;
 
 // Mix `Events` to object instance or Class function.
 Events.mixTo = function(receiver) {
-  var proto = Events.prototype, event, key;
+  var proto = Events.prototype,
+    event, key;
 
   function copyProto(key) {
     receiver[key] = function() {
@@ -222,7 +253,7 @@ Events.mixTo = function(receiver) {
         receiver.prototype[key] = proto[key];
       }
     }
-    Object.keys(proto).forEach(function(key) {
+    keys(proto).forEach(function(key) {
       receiver.prototype[key] = proto[key];
     });
   } else {
