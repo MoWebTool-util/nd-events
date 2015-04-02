@@ -19,41 +19,17 @@ var eventSplitter = /\s+/;
 var keys = Object.keys;
 
 if (!keys) {
-  keys = function(o) {
-    var result = [];
+  keys = function(obj) {
+    var ret = [];
+    var key;
 
-    for (var name in o) {
-      if (o.hasOwnProperty(name)) {
-        result.push(name);
+    for (key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        ret.push(key);
       }
     }
-    return result;
-  };
-}
 
-if (!Array.prototype.forEach) {
-  Array.prototype.forEach = function(callback, thisArg) {
-    var T, k;
-    if (this === null) {
-      throw new TypeError('this is null or not defined');
-    }
-    var O = Object(this);
-    var len = O.length >>> 0; // Hack to convert O.length to a UInt32
-    if ({}.toString.call(callback) !== '[object Function]') {
-      throw new TypeError(callback + ' is not a function');
-    }
-    if (thisArg) {
-      T = thisArg;
-    }
-    k = 0;
-    while (k < len) {
-      var kValue;
-      if (k in O) {
-        kValue = O[k];
-        callback.call(T, kValue, k, O);
-      }
-      k++;
-    }
+    return ret;
   };
 }
 
@@ -238,11 +214,12 @@ Events.prototype.emit = Events.prototype.fire = Events.prototype.trigger;
 // Mix `Events` to object instance or Class function.
 Events.mixTo = function(receiver) {
   var proto = Events.prototype,
+    slice = Array.prototype.slice,
     event, key;
 
   function copyProto(key) {
     receiver[key] = function() {
-      proto[key].apply(event, Array.prototype.slice.call(arguments));
+      proto[key].apply(event, slice.call(arguments));
       return this;
     };
   }
@@ -253,9 +230,6 @@ Events.mixTo = function(receiver) {
         receiver.prototype[key] = proto[key];
       }
     }
-    keys(proto).forEach(function(key) {
-      receiver.prototype[key] = proto[key];
-    });
   } else {
     event = new Events();
     for (key in proto) {
