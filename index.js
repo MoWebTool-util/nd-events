@@ -12,10 +12,6 @@
 // Regular expression used to split event strings
 var eventSplitter = /\s+/;
 
-
-// Helpers
-// -------
-
 var keys = Object.keys;
 
 if (!keys) {
